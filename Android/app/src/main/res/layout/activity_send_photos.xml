@@ -28,4 +28,12 @@
             android:translationY="350dp"
             android:translationX="150dp"
             android:id="@+id/loading"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:translationY="450dp"
+            android:translationX="185dp"
+
+
+              android:id="@+id/error"/>
 </RelativeLayout>
