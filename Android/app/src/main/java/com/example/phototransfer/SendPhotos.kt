@@ -9,6 +9,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log
@@ -25,6 +26,7 @@ class SendPhotos : AppCompatActivity() {
     private lateinit var currentBitmap: Bitmap
     private lateinit var device:Any
     private lateinit var socket: BluetoothSocket
+    private lateinit var clientThread: ClientThread
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +36,7 @@ class SendPhotos : AppCompatActivity() {
         device = intent.extras.get("Device")
 
 
-        makeDiscoverable()
+        //makeDiscoverable()
 
         send_photo.setOnClickListener{
             val intent = Intent(
@@ -46,13 +48,29 @@ class SendPhotos : AppCompatActivity() {
 
         }
 
+        val handler:Handler = Handler()
+        handler.postDelayed(connectToServer,5000)
 
 
 
+    }
+
+    private val connectToServer=Runnable{
+
+        val bluetoothAdapter:BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
 
 
+        clientThread = ClientThread(device as BluetoothDevice,bluetoothAdapter)
 
+        try{
 
+            clientThread.run()
+            socket = clientThread.mmSocket
+
+        }
+        catch(e:Exception){
+            e.printStackTrace()
+        }
 
     }
 
@@ -83,7 +101,7 @@ class SendPhotos : AppCompatActivity() {
 
                 val byteArray:ByteArray = stream.toByteArray()
 
-                connectToServer()
+
                 sendPhoto(byteArray)
 
 
@@ -96,35 +114,14 @@ class SendPhotos : AppCompatActivity() {
     }
 
 
-    private fun connectToServer(){
-
-        val bluetoothAdapter:BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
-
-
-        val connThread = ClientThread(device as BluetoothDevice,bluetoothAdapter)
-
-        try{
-
-            connThread.run()
-            socket = connThread.mmSocket
-
-        }
-        catch(e:Exception){
-            e.printStackTrace()
-        }
-
-
-    }
 
 
 
     private fun sendPhoto(byteArray: ByteArray) {
 
 
-        val bluetoothService: BluetoothService.ConnectedThread = BluetoothService.ConnectedThread(socket)
-        
+        clientThread.write(byteArray)
 
-        bluetoothService.write(byteArray)
 
 
 
