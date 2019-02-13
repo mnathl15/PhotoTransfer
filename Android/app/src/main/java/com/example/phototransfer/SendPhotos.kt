@@ -44,10 +44,6 @@ class SendPhotos : AppCompatActivity() {
         device = intent.extras.get("Device")
 
 
-
-
-        //makeDiscoverable()
-
         send_photo.setOnClickListener{
             val intent = Intent(
                 Intent.ACTION_PICK,
@@ -58,7 +54,7 @@ class SendPhotos : AppCompatActivity() {
 
         }
 
-        val handler:Handler = Handler()
+        val handler = Handler()
         handler.postDelayed(connectToServer,5000)
 
 
@@ -85,16 +81,6 @@ class SendPhotos : AppCompatActivity() {
     }
 
 
-    private fun makeDiscoverable(){
-        val discoverableIntent: Intent = Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE).apply {
-            putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 600)
-        }
-        startActivity(discoverableIntent)
-
-    }
-
-
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -111,9 +97,6 @@ class SendPhotos : AppCompatActivity() {
                 currentBitmap.compress(Bitmap.CompressFormat.PNG,100,stream)
 
                 val byteArray:ByteArray = stream.toByteArray()
-
-
-                Log.d("TAG","THE SIZE IS: " + byteArray.size)
 
                 clientThread.write(byteArray)
 
@@ -202,8 +185,16 @@ class SendPhotos : AppCompatActivity() {
 
         fun write(bytes: ByteArray) {
             output = fallbackSocket.outputStream
-            Log.d("TAG","HERE ARE YOUR BYTES: " + bytes)
-            output.write(bytes)
+
+            try{
+                output.write(bytes)
+
+            }
+            catch(io:IOException){
+                Log.e("TAG","COULD NOT SEND",io)
+            }
+
+            output.close()
 
 
         }

@@ -36,22 +36,29 @@ client_sock,address = server_sock.accept()
 print ("Accepted connection from ",address)
 
 
-data = client_sock.recv(100000)
+
+
+data = client_sock.recv(1000)
+
+
+
+while(True):
+     print('tr')
+     chunk = client_sock.recv(1000)
+     if (len(chunk) == 0):
+          break
+     data+=chunk
+
 
 
 print("received [%s]" % data)
 
 print(len(data))
 
-
-
-
-with open("C:/Users/Michael/Desktop/image.png", "wb") as f:
-     f.write(data)
-
-# orginal_image = Image.open(data)
+# ImageFile.LOAD_TRUNCATED_IMAGES = True
+# orginal_image = Image.open(io.BytesIO(data))
 #
-# orginal_image.save("C:/Users/Michael/Desktop/image.png")
+# orginal_image.save("C:/Users/Michael/Desktop/image4.png")
 
 
 client_sock.close()
