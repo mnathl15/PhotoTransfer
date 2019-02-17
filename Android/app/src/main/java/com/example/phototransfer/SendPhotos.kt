@@ -34,6 +34,8 @@ class SendPhotos : AppCompatActivity() {
     private lateinit var device:Any
     private lateinit var socket: BluetoothSocket
     private lateinit var clientThread: ClientThread
+    private lateinit var fallbackSocket: BluetoothSocket
+    private lateinit var output: OutputStream
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +43,11 @@ class SendPhotos : AppCompatActivity() {
         setContentView(R.layout.activity_send_photos)
 
 
-        device = intent.extras.get("Device")
+        try {
+            device = intent.extras.get("Device")
+        }catch (e:Exception){
+            e.printStackTrace()
+        }
 
 
         send_photo.setOnClickListener{
@@ -54,12 +60,15 @@ class SendPhotos : AppCompatActivity() {
 
         }
 
+
+        //Creates a handler so that activity can load before connection starts
         val handler = Handler()
         handler.postDelayed(connectToServer,5000)
 
 
-
     }
+
+
 
     private val connectToServer=Runnable{
 
@@ -98,7 +107,13 @@ class SendPhotos : AppCompatActivity() {
 
                 val byteArray:ByteArray = stream.toByteArray()
 
-                clientThread.write(byteArray)
+                val sendPhotoThread = SendPhotoThread()
+                sendPhotoThread.execute(byteArray)
+
+
+
+                error.setText("Trying to send photo")
+                loading.visibility = View.VISIBLE
 
 
             }
@@ -114,8 +129,7 @@ class SendPhotos : AppCompatActivity() {
 
 
 
-
-
+    //Connects to the python server
     inner class ClientThread(device: BluetoothDevice,bluetoothAdapter: BluetoothAdapter?) : AsyncTask<Void, Void, Boolean>() {
 
         val device = device
@@ -124,8 +138,8 @@ class SendPhotos : AppCompatActivity() {
         private val PORT_NUMBER = 25
 
         private val TIMEOUTNUM = 100
-        private lateinit var output: OutputStream
-        private lateinit var fallbackSocket: BluetoothSocket
+
+
         private var uuid: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
 
 
@@ -147,7 +161,7 @@ class SendPhotos : AppCompatActivity() {
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
-                publishProgress()
+
 
                 timeElapsed = Date().time - startTime
 
@@ -159,21 +173,18 @@ class SendPhotos : AppCompatActivity() {
             return fallbackSocket.isConnected
         }
 
-        override fun onProgressUpdate(vararg values: Void?) {
-            super.onProgressUpdate(*values)
-            error.setText("Trying to connect!")
-        }
-
-
 
         override fun onPostExecute(result: Boolean) {
             loading.visibility = View.GONE
-            if(result){
+            if (result) {
                 error.setText("Connection successful")
-            }else{
+                send_photo.visibility = View.VISIBLE
+
+            } else {
                 error.setText("Could not connect")
+                val backIntent: Intent = Intent(applicationContext, MainActivity::class.java)
+                startActivity(backIntent)
             }
-            Toast.makeText(applicationContext,"DONEEE",Toast.LENGTH_LONG).show()
         }
 
 
@@ -183,27 +194,59 @@ class SendPhotos : AppCompatActivity() {
         }
 
 
-        fun write(bytes: ByteArray) {
+    }
+
+    //Thread for sending bytes
+    private inner class SendPhotoThread():AsyncTask<ByteArray,Void,Boolean>() {
+
+
+        override fun doInBackground(vararg p0 : ByteArray): Boolean {
             output = fallbackSocket.outputStream
 
-            try{
-                output.write(bytes)
-
+            try {
+                output.write(p0[0])
+                return true
+            } catch (io: IOException) {
+                Log.d("TAG","HERE BE THE ERROR " + io.printStackTrace())
+                return false
             }
-            catch(io:IOException){
-                Log.e("TAG","COULD NOT SEND",io)
-            }
-
-            output.close()
 
 
         }
 
 
+        override fun onPostExecute(result: Boolean?) {
+            super.onPostExecute(result)
+
+
+            loading.visibility = View.GONE
+            output.close()
+
+            val reIntent = Intent(applicationContext, SendPhotos::class.java)
+
+            reIntent.putExtra("Device",device as BluetoothDevice)
+            if(result == true) {
+                error.setText("Photo sent successfully!")
+
+
+            }
+            else {
+                error.setText("There was an issue sending the photo")
+            }
+
+            //restarts activity to re-connect to python server
+            startActivity(reIntent)
+        }
 
 
 
     }
 
 
+
+
+
 }
+
+
+

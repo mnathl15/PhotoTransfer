@@ -12,27 +12,29 @@
                android:translationY="100dp"
                android:layout_height="150dp"
 
-               android:translationX="130dp"
+               android:layout_centerHorizontal="true"
                android:id="@+id/image"/>
 
 
     <Button
             android:text="Send Photo"
             android:layout_width="match_parent"
+            android:visibility="gone"
             android:layout_height="wrap_content" android:id="@+id/send_photo"
+            android:layout_centerHorizontal="true"
             android:translationY="500dp"/>
     <ProgressBar
             style="?android:attr/progressBarStyle"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:translationY="350dp"
-            android:translationX="150dp"
+            android:layout_centerHorizontal="true"
             android:id="@+id/loading"/>
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:translationY="450dp"
-            android:translationX="185dp"
+            android:layout_centerHorizontal="true"
 
 
               android:id="@+id/error"/>

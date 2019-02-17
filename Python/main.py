@@ -1,27 +1,14 @@
-from bluetooth import *
+
 import bluetooth
+import random
 
 HOST = ''          # Symbolic name
 PORT = 25
 import os
 import io
+import sys
 from PIL import Image
 from PIL import ImageFile
-
-
-# print ("performing inquiry...")
-#
-#
-# try:
-#      nearby_devices = discover_devices(lookup_names = True)
-#      print("found %d devices" % len(nearby_devices))
-#      for name, addr in nearby_devices:
-#           print(" %s - %s" % (addr, name))
-# except:
-#      print("Can't find")
-
-
-
 
 
 print('Looking for connections...')
@@ -38,31 +25,48 @@ print ("Accepted connection from ",address)
 
 
 
-data = client_sock.recv(1000)
+
+def save_photo(data):
+     ImageFile.LOAD_TRUNCATED_IMAGES = True
+     orginal_image = Image.open(io.BytesIO(data))
+
+
+     rand_file_num = random.randint(1,1000)
+
+     while(os.path.isfile("C:/Users/Michael/Desktop/PhotoTransfer/image%d.png" %rand_file_num)):
+          rand_file_num = random.randint(1,1000)
+
+
+     orginal_image.save("C:/Users/Michael/Desktop/PhotoTransfer/image%d.png" %rand_file_num)
 
 
 
-while(True):
-     print('tr')
-     chunk = client_sock.recv(1000)
-     if (len(chunk) == 0):
-          break
-     data+=chunk
+def load_photo():
+     data = client_sock.recv(5000)
+     if(len(data) > 0):
+          while(True):
+               chunk = client_sock.recv(5000)
+               if (len(chunk) == 0):
+                    save_photo(data)
+
+                    break
+               data+=chunk
 
 
 
-print("received [%s]" % data)
-
-print(len(data))
-
-# ImageFile.LOAD_TRUNCATED_IMAGES = True
-# orginal_image = Image.open(io.BytesIO(data))
-#
-# orginal_image.save("C:/Users/Michael/Desktop/image4.png")
 
 
-client_sock.close()
+load_photo()
+
 server_sock.close()
+client_sock.close()
+
+#restarts the script to re-accept connections
+os.execv(sys.executable, [sys.executable] + sys.argv)
+
+
+
+
 
 
 

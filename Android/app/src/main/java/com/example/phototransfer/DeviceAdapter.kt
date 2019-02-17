@@ -2,16 +2,13 @@ package com.example.phototransfer
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.bluetooth.BluetoothSocket
 import android.content.Intent
-import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import android.widget.Toast
-import kotlinx.android.synthetic.main.device_textview.view.*
+import kotlinx.android.synthetic.main.recycler_device.view.*
 import java.util.*
 
 class DeviceAdapter(private val devices: ArrayList<BluetoothDevice>) : RecyclerView.Adapter<DeviceAdapter.MyViewHolder>() {
@@ -26,7 +23,7 @@ class DeviceAdapter(private val devices: ArrayList<BluetoothDevice>) : RecyclerV
                                     viewType: Int): DeviceAdapter.MyViewHolder {
         // create a new view
         val layout = LayoutInflater.from(parent.context)
-            .inflate(R.layout.device_textview, parent, false) as LinearLayout
+            .inflate(R.layout.recycler_device, parent, false) as LinearLayout
 
         return MyViewHolder(layout)
     }

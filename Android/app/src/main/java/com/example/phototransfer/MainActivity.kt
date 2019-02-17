@@ -18,8 +18,8 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.device_textview.*
-import kotlinx.android.synthetic.main.device_textview.view.*
+import kotlinx.android.synthetic.main.recycler_device.*
+import kotlinx.android.synthetic.main.recycler_device.view.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
 
-        deviceList = ArrayList<BluetoothDevice>()
+        deviceList = ArrayList()
 
 
 
@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity() {
             when(action){
 
                 BluetoothDevice.ACTION_FOUND -> {
-                    //Toast.makeText(applicationContext,"FOUND",Toast.LENGTH_LONG).show()
+
 
                     // Discovery has found a device. Get the BluetoothDevice
                     // object and its info from the Intent.
